@@ -52,9 +52,7 @@ class DataLoader_train:
 			pair_id = self.train_index[rand_ids[i]][0]+ \
 				np.random.choice(self.train_index[rand_ids[i]][1]-self.train_index[rand_ids[i]][0]+1,2)
 			import pdb; pdb.set_trace() ###
-			pos_img_left.append([load_and_preprocess(self.train_filelist[pair_id[0]]),
-			pos_img_right
-							load_and_preprocess(self.train_filelist[pair_id[1]])])
-
+			pos_img_left.append(load_and_preprocess(self.train_filelist[pair_id[0]]))
+			pos_img_right.append(load_and_preprocess(self.train_filelist[pair_id[1]]))
 
 		# get negative pairs
