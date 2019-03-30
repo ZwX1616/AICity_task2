@@ -6,7 +6,7 @@ from network import Siamese_classic_inception3
 #config = tf.ConfigProto()
 
 # operate within tf session
-sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=True))
+sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=False))
 
 # setup networkse
 # by default this use pretrained weights of incepion3

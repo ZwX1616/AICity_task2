@@ -6,7 +6,7 @@ from dataloader import DataLoader_train
 
 learning_rate = 0.01
 num_iter = 100000
-batch_size = 4
+batch_size = 64
 
 data_shape = (224,224,3)
 
