@@ -71,7 +71,7 @@ class DataLoader_train:
 
 		for i in range(int(self.batch_size/2)):
 			# randomly choose 2 IDs
-			rand_ids = np.random.choice(len(self.train_index),2)
+			rand_ids = np.random.choice(len(self.train_index),2,replace=False)
 			# randomly choose an image for each of the IDs
 			pair_id = [self.train_index[rand_ids[0]][0]+np.random.randint(0,self.train_index[rand_ids[0]][1]-self.train_index[rand_ids[0]][0]+1),
 						self.train_index[rand_ids[1]][0]+np.random.randint(0,self.train_index[rand_ids[1]][1]-self.train_index[rand_ids[1]][0]+1)]

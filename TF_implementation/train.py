@@ -4,9 +4,9 @@ import numpy as np
 from network import Siamese_classic_mobilenet
 from dataloader import DataLoader_train
 
-learning_rate = 0.01
+learning_rate = 0.1
 num_iter = 100000
-batch_size = 4
+batch_size = 128
 
 data_shape = (224,224,3)
 
@@ -36,7 +36,6 @@ my_dataloader = DataLoader_train(batch_size, data_shape)
 saver = tf.train.Saver()
 
 for epoch in range(num_iter):
-
 	x1, x2, y = my_dataloader.get_batch()
 	_, l = sess.run([train_step, net.loss], feed_dict={
 						net.x1: x1,
