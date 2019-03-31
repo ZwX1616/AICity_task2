@@ -40,8 +40,8 @@ class DataLoader_train:
 		img = tf.image.resize_images(img, [self.data_shape[0],self.data_shape[1]])
 		img = img / 255.0;
 		# img needs to be .eval().reshape((1,299,299,3)) afterwards
-		with tf.Session() as sess:
-			return np.array(img.eval().reshape((1,self.data_shape[0],self.data_shape[1],self.data_shape[2])))
+		#with tf.Session(config=tf.ConfigProto(log_device_placement=False)) as sess:
+		return np.array(img.eval().reshape((1,self.data_shape[0],self.data_shape[1],self.data_shape[2])))
 
 	def get_batch(self):
 	# returns np.array x1, x2, y

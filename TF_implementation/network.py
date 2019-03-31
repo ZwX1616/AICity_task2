@@ -41,7 +41,7 @@ class Siamese_classic_inception3:
 
         # ac = tf.nn.relu(..)
         W = tf.get_variable(name+'_W', dtype=tf.float32, shape=[input_len, output_len], 
-                            initializer=tf.keras.initializers.glorot_normal,
+                            initializer=tf.keras.initializers.random_normal,
                             regularizer=tf.contrib.layers.l2_regularizer(0.005))
         b = tf.get_variable(name+'_b', dtype=tf.float32, shape=[output_len],
                             initializer=tf.zeros_initializer(),
@@ -106,7 +106,7 @@ class Siamese_classic_mobilenet:
 
         # ac = tf.nn.relu(..)
         W = tf.get_variable(name+'_W', dtype=tf.float32, shape=[input_len, output_len], 
-                            initializer=tf.keras.initializers.glorot_normal,
+                            initializer=tf.keras.initializers.random_normal,
                             regularizer=tf.contrib.layers.l2_regularizer(0.005))
         b = tf.get_variable(name+'_b', dtype=tf.float32, shape=[output_len],
                             initializer=tf.zeros_initializer(),
