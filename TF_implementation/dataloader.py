@@ -39,16 +39,16 @@ class DataLoader_train:
 		img = tf.image.decode_jpeg(img)
 		img = tf.image.resize_images(img, [self.data_shape[0],self.data_shape[1]])
 		img = img / 255.0;
-		# img needs to be .eval().reshape((1,299,299,3)) afterwards
+		# img needs to be .eval().reshape((1,H,W,C)) afterwards
 		#with tf.Session(config=tf.ConfigProto(log_device_placement=False)) as sess:
 		return np.array(img.eval().reshape((1,self.data_shape[0],self.data_shape[1],self.data_shape[2])))
 
 	def get_batch(self):
 	# returns np.array x1, x2, y
-	# x1, x2 with shape (batch, 299, 299, 3)
+	# x1, x2 with shape (batch, H, W, C)
 	# y with shape (batch, )
 
-		# get positive pairs ([B/2*299*299*3, B/2*299*299*3])
+		# get positive pairs ([B/2*H*W*C, B/2*H*W*C])
 		pos_img_left = []
 		pos_img_right = []
 			# randomly choose batch/2 IDs
@@ -85,3 +85,66 @@ class DataLoader_train:
 		return np.concatenate((pos_img_left, neg_img_left),axis=0), \
 				np.concatenate((pos_img_right, neg_img_right),axis=0), \
 				np.concatenate((np.ones(int(self.batch_size/2)),np.zeros(int(self.batch_size/2))),axis=0)
+
+
+# load batch_size images and return them
+# for forward computation
+class DataLoader_eval():
+	# batch_size = N
+	# data_shape = (H,W,C)
+	# data_set = 'test' or 'query'
+	def __init__(self, batch_size, data_shape, data_set):
+		self.batch_size = batch_size
+		self.data_shape = data_shape
+		assert data_set in ['query','test'], "data_set should be 'test' or 'query'"
+		self.data_set = data_set
+
+		# load the filelist
+		self.eval_filelist = []
+		with open('./data/name_'+self.data_set+'.txt',encoding='utf-8') as cfile:
+			reader = csv.reader(cfile)
+			readeritem=[]
+			readeritem.extend([row for row in reader])
+		for _, row in enumerate(readeritem):
+			self.eval_filelist.append(row[0])
+		del reader
+		del readeritem
+
+		# initialize index
+		self.current_batch = 0
+		self.is_complete = False
+
+	def load_and_preprocess(self, image_file):
+		img = tf.read_file('./data/image_'+self.data_set+'/'+image_file)
+		img = tf.image.decode_jpeg(img)
+		img = tf.image.resize_images(img, [self.data_shape[0],self.data_shape[1]])
+		img = img / 255.0;
+		# img needs to be .eval().reshape((1,H,W,C)) afterwards
+		#with tf.Session(config=tf.ConfigProto(log_device_placement=False)) as sess:
+		return np.array(img.eval().reshape((1,self.data_shape[0],self.data_shape[1],self.data_shape[2])))
+
+	def reset_batch(self):
+		self.current_batch = 0
+		self.is_complete = False
+
+	def get_batch(self):
+	# returns np.array x
+	# x with shape (batch, H, W, C)
+		if (self.is_complete==True):
+			print ("have finished reading all batches. please reset_batch().")
+			return []
+
+		img = []
+		if (len(self.eval_filelist)-self.batch_size*(self.current_batch+1)>0):
+		# remaining images more than batch_size
+			for i in range(self.batch_size):
+				img.append(self.load_and_preprocess(self.eval_filelist[self.batch_size*self.current_batch+i]))
+			self.current_batch = self.current_batch + 1
+		else:
+		# remaining images less than or equal batch_size (last batch)
+			for i in range(len(self.eval_filelist)-self.batch_size*self.current_batch):
+				img.append(self.load_and_preprocess(self.eval_filelist[self.batch_size*self.current_batch+i]))
+			self.current_batch = self.current_batch + 1
+			self.is_complete=True
+
+		return np.concatenate(img,axis=0)

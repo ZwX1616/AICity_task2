@@ -4,3 +4,5 @@ TF_implementation/model.index
 TF_implementation/model.meta
 TF_implementation/checkpoint
 TF_implementation/data/image_train/*
+TF_implementation/data/image_test/*
+TF_implementation/data/image_query/*
