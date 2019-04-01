@@ -10,6 +10,7 @@ num_iter = 10000
 batch_size = 256
 
 save_interval = 25
+load_previous = False
 
 data_shape = (224,224,3)
 
@@ -23,20 +24,30 @@ sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=False))
 # as our backbone
 net = Siamese_classic_mobilenet()
 
-# saver.restore(sess, './model')
-# initialize the custom layer weights 
+# variable saver
+saver = tf.train.Saver()
+
 trainable_var = [v for v in tf.global_variables() if "feat_vec_mapping" in v.name]
-print ("trainable variables: ")
-print (trainable_var)
-tf.variables_initializer(trainable_var).run()
+if load_previous: 
+	saver.restore(sess, './checkpoints/model')
+	with open('./checkpoints/iter.txt','r+') as f:
+		epoch_offset = int(f.read())+1
+	print ('...checkpoint loaded from iteration ' + \
+			str(epoch_offset) + \
+			'...')
+else:
+	# initialize the custom layer weights 
+	print ("trainable variables: ")
+	print (trainable_var)
+	tf.variables_initializer(trainable_var).run()
+	epoch_offset = 0
 
 # setup trainer
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss=net.loss, 
 											  var_list=trainable_var)
 my_dataloader = DataLoader_train(batch_size, data_shape)
 
-# variable saver
-saver = tf.train.Saver()
+
 
 # tensorboard logger
 writer_train = tf.summary.FileWriter('./logs/')
@@ -57,13 +68,15 @@ for epoch in range(num_iter):
 		quit()
 
 	# logging
-	print ('iteration %d: loss %.7f, runtime: %.1fs' % (epoch, l, time()-start))
-	if (epoch==0):
+	print ('iteration %d: loss %.7f, runtime: %.1fs' % (epoch+epoch_offset, l, time()-start))
+	if (epoch+epoch_offset==0):
 		writer_train.add_graph(sess.graph)
-	writer_train.add_summary(summary, epoch)
+	writer_train.add_summary(summary, epoch+epoch_offset)
 	writer_train.flush()
-	if (epoch>0 and epoch%save_interval==0):
+	if ((epoch+epoch_offset)>0 and (epoch+epoch_offset)%save_interval==0):
 		saver.save(sess, './checkpoints/model')
+		with open('./checkpoints/iter.txt','w+') as f:
+			f.write(str(epoch+epoch_offset))
 		print ('...checkpoint saved...')
 
 print (str(num_iter)+' iterations completed')
