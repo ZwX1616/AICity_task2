@@ -6,3 +6,5 @@ TF_implementation/checkpoint
 TF_implementation/data/image_train/*
 TF_implementation/data/image_test/*
 TF_implementation/data/image_query/*
+TF_implementation/checkpoints/*
+TF_implementation/logs/*
