@@ -9,6 +9,8 @@ learning_rate = 0.1
 num_iter = 10000
 batch_size = 256
 
+train_full_model = True
+
 save_interval = 25
 load_previous = False
 
@@ -37,17 +39,21 @@ if load_previous:
 			'...')
 else:
 	# initialize the custom layer weights 
-	print ("trainable variables: ")
-	print (trainable_var)
+	# print ("trainable variables: ")
+	# print (trainable_var)
 	tf.variables_initializer(trainable_var).run()
 	epoch_offset = 0
 
 # setup trainer
-train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss=net.loss, 
-											  var_list=trainable_var)
+if train_full_model==False:
+	print("training only trainable_var")
+	train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss=net.loss,
+	 										  var_list=trainable_var)
+else:
+	print("training the full model")
+	train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss=net.loss)
+
 my_dataloader = DataLoader_train(batch_size, data_shape)
-
-
 
 # tensorboard logger
 writer_train = tf.summary.FileWriter('./logs/')
