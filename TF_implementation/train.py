@@ -9,7 +9,7 @@ learning_rate = 0.1
 num_iter = 10000
 batch_size = 256
 
-save_interval = 25
+save_interval = 1
 load_previous = False
 
 data_shape = (224,224,3)
