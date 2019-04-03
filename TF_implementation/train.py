@@ -2,19 +2,19 @@ import tensorflow as tf
 import numpy as np
 from time import time
 
-from network import Siamese_classic_mobilenet
+from network import Siamese_classic_mobilenet_CE_loss
 from dataloader import DataLoader_train
 
-learning_rate = 0.1
+learning_rate = 0.01
 num_iter = 10000
 batch_size = 16
 
-train_full_model = False
+train_full_model = True
 
-save_interval = 1
+save_interval = 25
 load_previous = False
 
-data_shape = (224,224,3)0
+data_shape = (224,224,3)
 
 #config = tf.ConfigProto()
 
@@ -24,12 +24,14 @@ sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=False))
 # setup networkse
 # by default this use pretrained weights of incepion3
 # as our backbone
-net = Siamese_classic_mobilenet()
+net = Siamese_classic_mobilenet_CE_loss()
 
 # variable saver
 saver = tf.train.Saver()
 
-trainable_var = [v for v in tf.global_variables() if "feat_vec_mapping" in v.name]
+# trainable_var = [v for v in tf.global_variables() if "feat_vec_mapping" in v.name]
+trainable_var = [v for v in tf.global_variables() if "fc_1024_to_2" in v.name]
+
 if load_previous: 
 	saver.restore(sess, './checkpoints/model')
 	with open('./checkpoints/iter.txt','r+') as f:

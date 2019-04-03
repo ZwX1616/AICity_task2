@@ -95,7 +95,7 @@ class Siamese_classic_mobilenet:
 
     def feature_vector_mapping(self, feat_vec):
         # this is our trainable metric mapping function
-        # add a FC layer 2048 -> 768
+        # add a FC layer 1024 -> 256
         fc_output = self.fc_layer(feat_vec, 256, "feat_vec_mapping")
 
         return fc_output
@@ -117,7 +117,7 @@ class Siamese_classic_mobilenet:
 
     def loss_function(self):
         # cosine similarity loss
-        # o1, o2 format: [batch x 768]
+        # o1, o2 format: [batch x 256]
         o1_normalized = tf.nn.l2_normalize(self.o1,1) #axis=1
         o2_normalized = tf.nn.l2_normalize(self.o2,1)
         cos_sim=tf.add(1.0, tf.reduce_sum(tf.multiply(o1_normalized,o2_normalized),axis=1), name="cos_sim")
@@ -132,7 +132,7 @@ class Siamese_classic_mobilenet:
         return loss
 
 
-class Siamese_classic_mobilenet_with_01_loss:
+class Siamese_classic_mobilenet_CE_loss:
 
     def __init__(self):
         from tensorflow.keras.applications import mobilenet
@@ -149,32 +149,25 @@ class Siamese_classic_mobilenet_with_01_loss:
             #                layer.trainable = False
 
             self.bottleneck_feature_1 = self.bottleneck_model(self.x1)
+            scope.reuse_variables()
             self.bottleneck_feature_2 = self.bottleneck_model(self.x2)
 
-            self.o1 = self.feature_vector_mapping(self.bottleneck_feature_1)
-            scope.reuse_variables()
-            self.o2 = self.feature_vector_mapping(self.bottleneck_feature_2)
+            self.o1 = self.bottleneck_feature_1
+            self.o2 = self.bottleneck_feature_2
 
         # define loss
-        self.y_gt = tf.placeholder(tf.float32, [None])  # 1 or 0
+        self.y_gt = tf.placeholder(tf.int32, [None])  # 1 or 0
         self.loss = self.loss_function()
 
-    def feature_vector_mapping(self, feat_vec):
-        # this is our trainable metric mapping function
-        # add a FC layer 2048 -> 768
-        fc_output = self.fc_layer(feat_vec, 256, "feat_vec_mapping")
-
-        return fc_output
-
     def fc_layer(self, input, output_len, name):
-        #        print (input.get_shape())
+#        print (input.get_shape())
         input_len = input.get_shape()[1]
 
         # ac = tf.nn.relu(..)
-        W = tf.get_variable(name + '_W', dtype=tf.float32, shape=[input_len, output_len],
+        W = tf.get_variable(name+'_W', dtype=tf.float32, shape=[input_len, output_len], 
                             initializer=tf.keras.initializers.random_normal,
                             regularizer=tf.contrib.layers.l2_regularizer(0.005))
-        b = tf.get_variable(name + '_b', dtype=tf.float32, shape=[output_len],
+        b = tf.get_variable(name+'_b', dtype=tf.float32, shape=[output_len],
                             initializer=tf.zeros_initializer(),
                             regularizer=tf.contrib.layers.l2_regularizer(0.005))
         fc = tf.nn.bias_add(tf.matmul(input, W), b)
@@ -182,19 +175,16 @@ class Siamese_classic_mobilenet_with_01_loss:
         return fc
 
     def loss_function(self):
-        # cosine similarity loss
-        # o1, o2 format: [batch x 768]
-        o1_normalized = tf.nn.l2_normalize(self.o1, 1)  # axis=1
-        o2_normalized = tf.nn.l2_normalize(self.o2, 1)
-        cos_sim = tf.add(1.0, tf.reduce_sum(tf.multiply(o1_normalized, o2_normalized), axis=1), name="cos_sim")
-
-        #         1 -> pos, 0 -> neg
-        #         print(cos_sim.get_shape())
-        neg = tf.multiply(tf.subtract(1.0, self.y_gt, name="neg_mask"), cos_sim, name="neg_loss")
-        pos = tf.multiply(self.y_gt, tf.subtract(2.0, cos_sim, name="pos_loss_0"), name="pos_loss")
-        total_loss = tf.add(neg, pos, name="total_loss")
-        loss = tf.reduce_mean(total_loss, name="loss")
-
+        # o1, o2 format: [batch x 1024]
+            # compute the L1 difference of two features
+        feat_diff = tf.subtract(self.o1, self.o2, name="feat_diff")
+        feat_diff_abs = tf.abs(feat_diff, name="feat_diff_abs")
+            # FC mapping 1024 -> 2 for binary classification
+        fc_output = self.fc_layer(feat_diff_abs, 2, "fc_1024_to_2")
+            # convert y_gt to one_hot encoding
+        y_gt_onehot = tf.one_hot(self.y_gt, 2)
+            # compute 
+        loss = tf.losses.softmax_cross_entropy(y_gt_onehot, fc_output)
         return loss
 
 if __name__ == '__main__':
@@ -228,11 +218,17 @@ if __name__ == '__main__':
 #         file_writer.close()
 #         print("loss1="+str(loss1)+", loss2="+str(loss2)+", loss3="+str(loss3)+", loss4="+str(loss4))
 # tensorboard --logdir="C:\Users\weixing\Documents\code\Nvidia_AIC_2019\AICity_task2\TF_implementation\graph_mn" --host=127.0.0.1
-        from tensorflow.keras.applications import mobilenet
-        net = mobilenet.MobileNet()
+        # from tensorflow.keras.applications import mobilenet
+        net = Siamese_classic_mobilenet_CE_loss()
+        tf.global_variables_initializer().run()
         import numpy as np
-        x = np.ones((1,224,224,3))
-        print(net(x.astype('float32')).eval())
-        file_writer = tf.summary.FileWriter('./graph_mn/')
-        file_writer.add_graph(sess.graph)
-        file_writer.close()
+        x = np.ones((6,224,224,3))
+        x2 = np.zeros((6,224,224,3))
+        y = np.array([1,1,1,0,0,0])
+        out = sess.run(net.loss, feed_dict={net.x1:x, net.x2:x2, net.y_gt:y})
+        import pdb; pdb.set_trace() ###
+        print('shit')
+        # print(net(x.astype('float32')).eval())
+        # file_writer = tf.summary.FileWriter('./graph_mn/')
+        # file_writer.add_graph(sess.graph)
+        # file_writer.close()
