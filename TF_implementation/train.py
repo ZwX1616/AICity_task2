@@ -7,14 +7,14 @@ from dataloader import DataLoader_train
 
 learning_rate = 0.1
 num_iter = 10000
-batch_size = 256
+batch_size = 16
 
-train_full_model = True
+train_full_model = False
 
 save_interval = 25
 load_previous = False
 
-data_shape = (224,224,3)
+data_shape = (224,224,3)0
 
 #config = tf.ConfigProto()
 
