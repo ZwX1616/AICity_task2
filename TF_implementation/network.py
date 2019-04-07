@@ -217,7 +217,7 @@ if __name__ == '__main__':
 #         file_writer.add_graph(sess.graph)
 #         file_writer.close()
 #         print("loss1="+str(loss1)+", loss2="+str(loss2)+", loss3="+str(loss3)+", loss4="+str(loss4))
-# tensorboard --logdir="C:\Users\weixing\Documents\code\Nvidia_AIC_2019\AICity_task2\TF_implementation\graph_mn" --host=127.0.0.1
+# tensorboard --logdir="C:\Users\weixing\Documents\code\Nvidia_AIC_2019\AICity_task2\TF_implementation\logs" --host=127.0.0.1
         # from tensorflow.keras.applications import mobilenet
         net = Siamese_classic_mobilenet_CE_loss()
         tf.global_variables_initializer().run()
