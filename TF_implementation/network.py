@@ -268,7 +268,7 @@ class Siamese_typeC_CE_loss:
         conv_1 = tf.layers.conv2d(self.input,
                                   filters=96,
                                   kernel_size=(7,7),
-                                  strides=(2,2),
+                                  strides=(1,1),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_1")
@@ -279,7 +279,7 @@ class Siamese_typeC_CE_loss:
                                        name="mp_1")
 
         conv_2 = tf.layers.conv2d(mp_1,
-                                  filters=256,
+                                  filters=128,
                                   kernel_size=(5,5),
                                   strides=(1,1),
                                   padding='same',
@@ -290,7 +290,6 @@ class Siamese_typeC_CE_loss:
                                        strides=(2,2),
                                        padding='same',
                                        name="mp_2")
-
         conv_3 = tf.layers.conv2d(mp_2,
                                   filters=256,
                                   kernel_size=(5,5),
@@ -304,7 +303,20 @@ class Siamese_typeC_CE_loss:
                                        padding='same',
                                        name="mp_3")
 
-        flatten = tf.layers.flatten(mp_3,
+        conv_4 = tf.layers.conv2d(mp_3,
+                                  filters=256,
+                                  kernel_size=(3,3),
+                                  strides=(1,1),
+                                  padding='same',
+                                  activation=tf.nn.leaky_relu,
+                                  name="conv_4")
+        mp_4 = tf.layers.max_pooling2d(conv_4,
+                                       pool_size=(2,2),
+                                       strides=(2,2),
+                                       padding='same',
+                                       name="mp_4")
+
+        flatten = tf.layers.flatten(mp_4,
                                     name="flatten")
 
         fc_1 = tf.layers.dense(flatten, 
@@ -390,6 +402,7 @@ if __name__ == '__main__':
 #         file_writer.close()
 #         print("loss1="+str(loss1)+", loss2="+str(loss2)+", loss3="+str(loss3)+", loss4="+str(loss4))
 # tensorboard --logdir="C:\Users\weixing\Documents\code\Nvidia_AIC_2019\AICity_task2\TF_implementation\logs" --host=127.0.0.1
+# tensorboard --logdir="C:\Users\Daniel\Desktop\AICity_task2\TF_implementation\logs" --host=127.0.0.1
         # from tensorflow.keras.applications import mobilenet
         # net = Siamese_classic_mobilenet_CE_loss()
         # tf.global_variables_initializer().run()

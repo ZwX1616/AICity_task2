@@ -7,7 +7,7 @@ from dataloader import DataLoader_train
 
 learning_rate = 0.01
 num_iter = 10000
-batch_size = 128
+batch_size = 64
 
 train_full_model = True
 
