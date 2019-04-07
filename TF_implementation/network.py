@@ -268,39 +268,39 @@ class Siamese_typeC_CE_loss:
         conv_1 = tf.layers.conv2d(self.input,
                                   filters=96,
                                   kernel_size=(7,7),
-                                  strides=(2, 2),
+                                  strides=(2,2),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_1")
         mp_1 = tf.layers.max_pooling2d(conv_1,
                                        pool_size=(2,2),
-                                       strides=(1,1),
+                                       strides=(2,2),
                                        padding='same',
                                        name="mp_1")
 
         conv_2 = tf.layers.conv2d(mp_1,
                                   filters=256,
                                   kernel_size=(5,5),
-                                  strides=(1, 1),
+                                  strides=(1,1),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_2")
         mp_2 = tf.layers.max_pooling2d(conv_2,
                                        pool_size=(2,2),
-                                       strides=(1,1),
+                                       strides=(2,2),
                                        padding='same',
                                        name="mp_2")
 
         conv_3 = tf.layers.conv2d(mp_2,
                                   filters=256,
                                   kernel_size=(5,5),
-                                  strides=(1, 1),
+                                  strides=(1,1),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_3")
         mp_3 = tf.layers.max_pooling2d(conv_3,
                                        pool_size=(2,2),
-                                       strides=(1,1),
+                                       strides=(2,2),
                                        padding='same',
                                        name="mp_3")
 
@@ -410,6 +410,7 @@ if __name__ == '__main__':
         x2 = np.zeros((2,128,128,3))
         y = np.array([1,0])
         net = Siamese_typeC_CE_loss(training=False)
+        tf.global_variables_initializer().run()
         out = sess.run(net.loss, feed_dict={net.x1:x1, net.x2:x2, net.y_gt:y})
         print("out.shape: "+str(out.shape))
         print(out)
