@@ -43,9 +43,9 @@ while(my_dataloader.complete_all==False):
 
 all_ranking = np.flip(np.argsort(np.array(all_scores),axis=1),axis=1)[:,:min(top_k_number,len(all_scores[0]))]+1
 
-with open('./output/submission.txt','w+',newline='') as wf:
+with open('./output/track2.txt','w+',newline='') as wf:
 	import csv
 	writer=csv.writer(wf)
 	for r in range(len(all_ranking)):
 		writer.writerow([' '.join(str(c) for c in all_ranking[r])])
-print('output shape: '+str(all_ranking.shape)+'. saved to ./output/submission.txt','\n','good luck!')
+print('output shape: '+str(all_ranking.shape)+'. saved to ./output/track2.txt','\n','good luck!')
