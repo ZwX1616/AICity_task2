@@ -2,16 +2,17 @@ import tensorflow as tf
 import numpy as np
 from time import time
 
-from network import Siamese_classic_mobilenet
-from dataloader import DataLoader_eval
+from network import Siamese_typeC_CE_loss
+from dataloader import DataLoader_eval_v2
 
-batch_size = 16
-data_shape = (224,224,3)
-data_set = 'test'
+batch_size = 64
+data_shape = (128,128,3)
+
+top_k_number = 100
 
 sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=False))
 # define network
-net = Siamese_classic_mobilenet()
+net = Siamese_typeC_CE_loss(training=False)
 # load trained model
 saver = tf.train.Saver()
 saver.restore(sess, './checkpoints/model')
@@ -22,14 +23,29 @@ print ('...checkpoint loaded from iteration ' + \
 		'...')
 
 # dataloader for evaluation
-my_dataloader = DataLoader_eval(batch_size, data_shape, data_set)
+my_dataloader = DataLoader_eval_v2(batch_size, data_shape)
+all_scores = [] # one row is one query, with each col correspond to one test
+current_scores = []
 
-outputs = []
-while(my_dataloader.is_complete==False):
-	x = my_dataloader.get_batch()
-	y = sess.run(net.o1, feed_dict={net.x1:x})
-	outputs.append(y)
+while(my_dataloader.complete_all==False):
+	print("evaluation progress - overall:{:.2f}%, ".format(100*my_dataloader.current_query/len(my_dataloader.query_filelist)),
+			"current query:{:.2f}%".format(min(100*my_dataloader.batch_size*(my_dataloader.current_batch)/len(my_dataloader.test_filelist),100)),
+			end='\r')
+	try: 
+		x1,x2 = my_dataloader.get_batch()
+	except:
+		break
+	y = sess.run(net.output, feed_dict={net.x1:x1, net.x2:x2})
+	current_scores.extend(y[:,1].tolist())
+	if my_dataloader.is_complete==True:
+		all_scores.append(current_scores)
+		current_scores = []
 
-outputs = np.concatenate(outputs,axis=0)
-print('output shape: '+str(outputs.shape)+'. saving to ./output/'+data_set+'_feat_vec.npy')
-np.save('./output/'+data_set+'_feat_vec.npy', outputs)
+all_ranking = np.flip(np.argsort(np.array(all_scores),axis=1),axis=1)[:,:min(top_k_number,len(all_scores[0]))]+1
+
+with open('./output/submission.txt','w+',newline='') as wf:
+	import csv
+	writer=csv.writer(wf)
+	for r in range(len(all_ranking)):
+		writer.writerow([' '.join(str(c) for c in all_ranking[r])])
+print('output shape: '+str(all_ranking.shape)+'. saved to ./output/submission.txt','\n','good luck!')

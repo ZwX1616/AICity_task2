@@ -8,3 +8,4 @@ TF_implementation/data/image_test/*
 TF_implementation/data/image_query/*
 TF_implementation/checkpoints/*
 TF_implementation/logs/*
+TF_implementation/output/*

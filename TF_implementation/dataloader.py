@@ -143,3 +143,84 @@ class DataLoader_eval():
 			self.is_complete=True
 
 		return np.concatenate(img,axis=0)
+
+# iterate through all the query images
+# for each query image, load batch_size images from the test set \
+# and compute the matching score
+class DataLoader_eval_v2():
+	# batch_size = N
+	# data_shape = (H,W,C)
+	def __init__(self, batch_size, data_shape):
+		self.batch_size = batch_size
+		self.data_shape = data_shape
+
+		# load the query filelist
+		self.query_filelist = []
+		with open('./data/name_query.txt',encoding='utf-8') as cfile:
+			reader = csv.reader(cfile)
+			readeritem=[]
+			readeritem.extend([row for row in reader])
+		for _, row in enumerate(readeritem):
+			self.query_filelist.append(row[0])
+		del reader
+		del readeritem
+
+		# load the test filelist
+		self.test_filelist = []
+		with open('./data/name_test.txt',encoding='utf-8') as cfile:
+			reader = csv.reader(cfile)
+			readeritem=[]
+			readeritem.extend([row for row in reader])
+		for _, row in enumerate(readeritem):
+			self.test_filelist.append(row[0])
+		del reader
+		del readeritem
+
+		# initialize query index
+		self.current_query = 0
+		self.complete_all = False
+		# initialize test set index
+		self.current_batch = 0
+		self.is_complete = False
+
+	def load_and_preprocess(self, image_file, data_set):
+		img = misc.imread('./data/image_'+data_set+'/'+image_file)
+		img = misc.imresize(img,(self.data_shape[0],self.data_shape[1]))
+		img = img / 255.0;
+		return img.reshape((1,self.data_shape[0],self.data_shape[1],self.data_shape[2]))
+
+	def reset_batch(self):
+		self.current_query = self.current_query + 1
+		self.current_batch = 0
+		self.is_complete = False
+
+	def get_batch(self):
+	# returns np.array x1, x2
+	# x1 is the same query image repeated, with shape (batch, H, W, C)
+	# x2 is batch_size different test images, with shape (batch, H, W, C)
+		if (self.is_complete==True):
+			self.reset_batch()
+
+		if (self.current_query==len(self.query_filelist)):
+			print ("have finished reading all query images. thank you for choosing our service")
+			self.complete_all = True
+			return []
+
+		# img_query = []
+		img_query = self.load_and_preprocess(self.query_filelist[self.current_query],"query")
+
+		img_test = []
+		if (len(self.test_filelist)-self.batch_size*(self.current_batch+1)>0):
+		# remaining images more than batch_size
+			for i in range(self.batch_size):
+				img_test.append(self.load_and_preprocess(self.test_filelist[self.batch_size*self.current_batch+i],"test"))
+			self.current_batch = self.current_batch + 1
+		else:
+		# remaining images less than or equal batch_size (last batch)
+			for i in range(len(self.test_filelist)-self.batch_size*self.current_batch):
+				img_test.append(self.load_and_preprocess(self.test_filelist[self.batch_size*self.current_batch+i],"test"))
+			self.current_batch = self.current_batch + 1
+			self.is_complete=True
+
+		return np.tile(img_query,(len(img_test),1,1,1)), \
+				np.concatenate(img_test,axis=0)
