@@ -1,4 +1,4 @@
-# AICity_task2
+# AICity_task2 experiment log
 
 TF implementation:
 
