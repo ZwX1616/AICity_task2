@@ -12,7 +12,7 @@ batch_size = 64
 train_full_model = True
 
 save_interval = 25
-load_previous = True
+load_previous = False
 
 data_shape = (128,128,3)
 

@@ -268,7 +268,7 @@ class Siamese_typeC_CE_loss:
         conv_1 = tf.layers.conv2d(self.input,
                                   filters=96,
                                   kernel_size=(7,7),
-                                  strides=(1,1),
+                                  strides=(2,2),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_1")
@@ -285,18 +285,32 @@ class Siamese_typeC_CE_loss:
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_2")
+
+        ap_2=tf.layers.average_pooling2d(conv_2,
+                                         pool_size=(4,4),
+                                         strides=(4,4),
+                                         padding = 'same',
+                                         name="ap_2")
+
         mp_2 = tf.layers.max_pooling2d(conv_2,
                                        pool_size=(2,2),
                                        strides=(2,2),
                                        padding='same',
                                        name="mp_2")
         conv_3 = tf.layers.conv2d(mp_2,
-                                  filters=256,
+                                  filters=128,
                                   kernel_size=(5,5),
                                   strides=(1,1),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_3")
+
+        ap_3=tf.layers.average_pooling2d(conv_3,
+                                         pool_size=(2,2),
+                                         strides=(2,2),
+                                         padding = 'same',
+                                         name="ap_2")
+
         mp_3 = tf.layers.max_pooling2d(conv_3,
                                        pool_size=(2,2),
                                        strides=(2,2),
@@ -304,13 +318,27 @@ class Siamese_typeC_CE_loss:
                                        name="mp_3")
 
         conv_4 = tf.layers.conv2d(mp_3,
-                                  filters=256,
+                                  filters=128,
                                   kernel_size=(3,3),
                                   strides=(1,1),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_4")
-        mp_4 = tf.layers.max_pooling2d(conv_4,
+
+        concatenate = tf.keras.layers.concatenate([conv_4,ap_3,ap_2],
+                                           axis=-1,
+                                           name="concatenate")
+
+
+        conv_5 = tf.layers.conv2d(concatenate,
+                                  filters=64,
+                                  kernel_size=(1,1),
+                                  strides=(1,1),
+                                  padding='same',
+                                  activation=tf.nn.leaky_relu,
+                                  name="conv_5")
+
+        mp_4 = tf.layers.max_pooling2d(conv_5,
                                        pool_size=(2,2),
                                        strides=(2,2),
                                        padding='same',
@@ -424,6 +452,6 @@ if __name__ == '__main__':
         y = np.array([1,0])
         net = Siamese_typeC_CE_loss(training=False)
         tf.global_variables_initializer().run()
-        out = sess.run(net.loss, feed_dict={net.x1:x1, net.x2:x2, net.y_gt:y})
+        out = sess.run(net.output, feed_dict={net.x1:x1, net.x2:x2})
         print("out.shape: "+str(out.shape))
         print(out)

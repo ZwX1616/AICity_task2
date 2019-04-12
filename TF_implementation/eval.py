@@ -5,7 +5,7 @@ from time import time
 from network import Siamese_typeC_CE_loss
 from dataloader import DataLoader_eval_v2
 
-batch_size = 64
+batch_size = 256
 data_shape = (128,128,3)
 
 top_k_number = 100
@@ -24,9 +24,9 @@ print ('...checkpoint loaded from iteration ' + \
 
 # dataloader for evaluation
 my_dataloader = DataLoader_eval_v2(batch_size, data_shape)
-all_scores = [] # one row is one query, with each col correspond to one test
+#all_scores = [] # one row is one query, with each col correspond to one test
 current_scores = []
-
+import csv
 while(my_dataloader.complete_all==False):
 	print("evaluation progress - overall:{:.2f}%, ".format(100*my_dataloader.current_query/len(my_dataloader.query_filelist)),
 			"current query:{:.2f}%".format(min(100*my_dataloader.batch_size*(my_dataloader.current_batch)/len(my_dataloader.test_filelist),100)),
@@ -38,14 +38,11 @@ while(my_dataloader.complete_all==False):
 	y = sess.run(net.output, feed_dict={net.x1:x1, net.x2:x2})
 	current_scores.extend(y[:,1].tolist())
 	if my_dataloader.is_complete==True:
-		all_scores.append(current_scores)
+		current_ranking = np.flip(np.argsort(np.array(current_scores)),axis=0)[:min(top_k_number, len(current_scores))] + 1
+		with open('./output/submission.txt', 'a+', newline='') as wf:
+			writer = csv.writer(wf)
+			writer.writerow([' '.join(str(c) for c in current_ranking)])
+		print('output shape: ' + str(len(current_scores)) + '. saved to ./output/submission.txt', '\n', 'good luck!')
 		current_scores = []
 
-all_ranking = np.flip(np.argsort(np.array(all_scores),axis=1),axis=1)[:,:min(top_k_number,len(all_scores[0]))]+1
 
-with open('./output/submission.txt','w+',newline='') as wf:
-	import csv
-	writer=csv.writer(wf)
-	for r in range(len(all_ranking)):
-		writer.writerow([' '.join(str(c) for c in all_ranking[r])])
-print('output shape: '+str(all_ranking.shape)+'. saved to ./output/submission.txt','\n','good luck!')
