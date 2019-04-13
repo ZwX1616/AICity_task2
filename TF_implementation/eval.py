@@ -46,3 +46,10 @@ while(my_dataloader.complete_all==False):
 		current_scores = []
 
 
+
+with open('./output/track2.txt','w+',newline='') as wf:
+	import csv
+	writer=csv.writer(wf)
+	for r in range(len(all_ranking)):
+		writer.writerow([' '.join(str(c) for c in all_ranking[r])])
+print('output shape: '+str(all_ranking.shape)+'. saved to ./output/track2.txt','\n','good luck!')
