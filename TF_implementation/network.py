@@ -264,7 +264,6 @@ class Siamese_typeC_CE_loss:
         self.loss = self.loss_function()
 
     def network(self):
-
         conv_1 = tf.layers.conv2d(self.input,
                                   filters=96,
                                   kernel_size=(7,7),
@@ -272,13 +271,20 @@ class Siamese_typeC_CE_loss:
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_1")
+
         mp_1 = tf.layers.max_pooling2d(conv_1,
                                        pool_size=(2,2),
                                        strides=(2,2),
                                        padding='same',
                                        name="mp_1")
 
-        conv_2 = tf.layers.conv2d(mp_1,
+        bn_1=tf.layers.batch_normalization(mp_1,
+                                           axis=-1,
+                                           training=True,
+                                           name="bn_1"
+                                           )
+
+        conv_2 = tf.layers.conv2d(bn_1,
                                   filters=128,
                                   kernel_size=(5,5),
                                   strides=(1,1),
@@ -297,7 +303,14 @@ class Siamese_typeC_CE_loss:
                                        strides=(2,2),
                                        padding='same',
                                        name="mp_2")
-        conv_3 = tf.layers.conv2d(mp_2,
+
+        bn_2=tf.layers.batch_normalization(mp_2,
+                                           axis=-1,
+                                           training=True,
+                                           name='bn_2'
+                                           )
+
+        conv_3 = tf.layers.conv2d(bn_2,
                                   filters=128,
                                   kernel_size=(5,5),
                                   strides=(1,1),
@@ -317,7 +330,14 @@ class Siamese_typeC_CE_loss:
                                        padding='same',
                                        name="mp_3")
 
-        conv_4 = tf.layers.conv2d(mp_3,
+        bn_3=tf.layers.batch_normalization(mp_3,
+                                           axis=-1,
+                                           training=True,
+                                           name='bn_3'
+                                           )
+
+
+        conv_4 = tf.layers.conv2d(bn_3,
                                   filters=128,
                                   kernel_size=(3,3),
                                   strides=(1,1),
@@ -329,14 +349,21 @@ class Siamese_typeC_CE_loss:
                                            axis=-1,
                                            name="concatenate")
 
+        bn_4=tf.layers.batch_normalization(concatenate,
+                                           axis=-1,
+                                           training=True,
+                                           name='bn_4'
+                                           )
 
-        conv_5 = tf.layers.conv2d(concatenate,
+
+        conv_5 = tf.layers.conv2d(bn_4,
                                   filters=64,
                                   kernel_size=(1,1),
                                   strides=(1,1),
                                   padding='same',
                                   activation=tf.nn.leaky_relu,
                                   name="conv_5")
+
 
         mp_4 = tf.layers.max_pooling2d(conv_5,
                                        pool_size=(2,2),

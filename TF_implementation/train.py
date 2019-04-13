@@ -12,7 +12,7 @@ batch_size = 64
 train_full_model = True
 
 save_interval = 25
-load_previous = False
+load_previous = True
 
 data_shape = (128,128,3)
 
@@ -49,15 +49,19 @@ else:
 # setup trainer
 if train_full_model==False:
 	print("training only trainable_var")
+	update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 	train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss=net.loss,
 	 										  var_list=trainable_var)
+	train_step = tf.group([train_step, update_ops])
 else:
 	print("training the full model")
+	update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 	train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss=net.loss)
+	train_step = tf.group([train_step, update_ops])
 
 my_dataloader = DataLoader_train(batch_size, data_shape)
 
-# tensorboard logger
+# tensorboard --logdir="C:\Users\Daniel\Desktop\AICity_task2\TF_implementation\logs" --host=127.0.0.1
 writer_train = tf.summary.FileWriter('./logs/')
 tf.summary.scalar("net_loss", net.loss)
 merged_summary = tf.summary.merge_all()
