@@ -46,7 +46,6 @@ while(my_dataloader.complete_all==False):
 		current_scores = []
 
 
-
 with open('./output/track2.txt','w+',newline='') as wf:
 	import csv
 	writer=csv.writer(wf)

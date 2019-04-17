@@ -280,7 +280,7 @@ class Siamese_typeC_CE_loss:
 
         bn_1=tf.layers.batch_normalization(mp_1,
                                            axis=-1,
-                                           training=True,
+                                           training=False,
                                            name="bn_1"
                                            )
 
@@ -306,7 +306,7 @@ class Siamese_typeC_CE_loss:
 
         bn_2=tf.layers.batch_normalization(mp_2,
                                            axis=-1,
-                                           training=True,
+                                           training=False,
                                            name='bn_2'
                                            )
 
@@ -332,7 +332,7 @@ class Siamese_typeC_CE_loss:
 
         bn_3=tf.layers.batch_normalization(mp_3,
                                            axis=-1,
-                                           training=True,
+                                           training=False,
                                            name='bn_3'
                                            )
 
@@ -351,7 +351,7 @@ class Siamese_typeC_CE_loss:
 
         bn_4=tf.layers.batch_normalization(concatenate,
                                            axis=-1,
-                                           training=True,
+                                           training=False,
                                            name='bn_4'
                                            )
 

@@ -177,14 +177,14 @@ class DataLoader_eval_v2():
 		del readeritem
 
 		# initialize query index
-		self.current_query = 615
+		self.current_query = 0
 		self.complete_all = False
 		# initialize test set index
 		self.current_batch = 0
 		self.is_complete = False
 
 	def load_and_preprocess(self, image_file, data_set):
-		img = misc.imread('./data/image_'+data_set+'/'+image_file)
+		img = misc.imread('D:/Nvidia Ai/aic19-track2-reid./image_'+data_set+'/'+image_file)
 		img = misc.imresize(img,(self.data_shape[0],self.data_shape[1]))
 		img = img / 255.0;
 		return img.reshape((1,self.data_shape[0],self.data_shape[1],self.data_shape[2]))

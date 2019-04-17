@@ -5,8 +5,8 @@ from time import time
 from network import Siamese_typeC_CE_loss
 from dataloader import DataLoader_train
 
-learning_rate = 0.001
-num_iter = 10000
+learning_rate = 0.0001
+num_iter = 50000
 batch_size = 64
 
 train_full_model = True
