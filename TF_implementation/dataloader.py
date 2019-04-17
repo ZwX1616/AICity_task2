@@ -167,7 +167,8 @@ class DataLoader_eval_v2():
 
 		# load the test filelist
 		self.test_filelist = []
-		with open('./data/name_test.txt',encoding='utf-8') as cfile:
+		print("in training set testing mode, don't forget to change it back")
+		with open('./data/name_train.txt',encoding='utf-8') as cfile: #test
 			reader = csv.reader(cfile)
 			readeritem=[]
 			readeritem.extend([row for row in reader])
@@ -213,12 +214,12 @@ class DataLoader_eval_v2():
 		if (len(self.test_filelist)-self.batch_size*(self.current_batch+1)>0):
 		# remaining images more than batch_size
 			for i in range(self.batch_size):
-				img_test.append(self.load_and_preprocess(self.test_filelist[self.batch_size*self.current_batch+i],"test"))
+				img_test.append(self.load_and_preprocess(self.test_filelist[self.batch_size*self.current_batch+i],"train")) #test
 			self.current_batch = self.current_batch + 1
 		else:
 		# remaining images less than or equal batch_size (last batch)
 			for i in range(len(self.test_filelist)-self.batch_size*self.current_batch):
-				img_test.append(self.load_and_preprocess(self.test_filelist[self.batch_size*self.current_batch+i],"test"))
+				img_test.append(self.load_and_preprocess(self.test_filelist[self.batch_size*self.current_batch+i],"train")) #test
 			self.current_batch = self.current_batch + 1
 			self.is_complete=True
 
