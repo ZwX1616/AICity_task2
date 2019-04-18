@@ -39,16 +39,8 @@ while(my_dataloader.complete_all==False):
 	current_scores.extend(y[:,1].tolist())
 	if my_dataloader.is_complete==True:
 		current_ranking = np.flip(np.argsort(np.array(current_scores)),axis=0)[:min(top_k_number, len(current_scores))] + 1
-		with open('./output/submission.txt', 'a+', newline='') as wf:
+		with open('./output/submission_hey.txt', 'a+', newline='') as wf:
 			writer = csv.writer(wf)
 			writer.writerow([' '.join(str(c) for c in current_ranking)])
-		print('output shape: ' + str(len(current_scores)) + '. saved to ./output/submission.txt', '\n', 'good luck!')
+		print('output shape: ' + str(len(current_scores)) + '. saved to ./output/submission_hey.txt', '\n', 'good luck!')
 		current_scores = []
-
-
-with open('./output/track2_hey.txt','w+',newline='') as wf:
-	import csv
-	writer=csv.writer(wf)
-	for r in range(len(all_ranking)):
-		writer.writerow([' '.join(str(c) for c in all_ranking[r])])
-print('output shape: '+str(all_ranking.shape)+'. saved to ./output/track2_hey.txt','\n','good luck!')
