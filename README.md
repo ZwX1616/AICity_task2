@@ -15,4 +15,7 @@ log:
  
  20190408: Custom network 128x128x3 with concated inputs and 0/1 CE loss, use full training set, lr=0.01/0.005/0.001, 70k iter - CE~0.2
  
+ 
+ 20190416: Custom network 128x128x3 with concated inputs, skip connection, batchnorm and 0/1 CE loss, use full training set, lr=0.01/0.005/0.001, 280k iter - CE~0.15
+ 
  data may need preprocessing as well
